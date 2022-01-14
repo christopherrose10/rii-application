@@ -4,7 +4,7 @@
 
 AS An avid book reader
 
-I WANT to find all books that could not have been written by their authors (published before the authors was 10)
+I WANT to find all books that could not have been written by their authors (published before the authors were 10)
 
 SO THAT I can keep enjoying my favorite authors!
 
