@@ -1,3 +1,4 @@
+from flask import Flask, jsonify
 import requests
 from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
@@ -20,47 +21,53 @@ authors = authorResponse.json()
 
 yearCurrent = datetime.today()
 
-# list that contains authors and the book they could NOT have written
-listOfNotMyBooks = []
+app = Flask(__name__, static_url_path='/')
 
-# loop through each author 
-for i in authors:
-    # dict that will hold author
-    resultObj = {}
+@app.route('/notMyBook')
+def notMyBook():
 
-    # stores authors name as a string
-    authorName = str(i['name']) + '(could not have written these books)'
-    # stores authors age as an int
-    age = int(i['age'])
-    # calculates and stores authors birth year by subtracting their age from current year
-    birthYear = yearCurrent - relativedelta(years=age)
-    # calculates and stores when author was 10
-    authorTenYrsOld = birthYear + relativedelta(years=10)
+    # list that contains authors and the book they could NOT have written
+    listOfNotMyBooks = []
 
-    # pushes author's name as key to resultObj dict... empty list as value will be filled with books
-    resultObj[authorName] = []
+    # loop through each author 
+    for i in authors:
+        # dict that will hold author
+        resultObj = {}
 
-    # list that will hold the books not written by author
-    notWrittenByAuthor = []
-    
-    # loop through each book
-    for j in books:
-        # parses string from database and stores the year the book was published
-        yearPublished = datetime.strptime(j['published'], '%m-%d-%Y')
-        #stores title of book as a string
-        bookTitle = str(j['title'])
+        # stores authors name as a string
+        authorName = str(i['name']) + '(could not have written these books)'
+        # stores authors age as an int
+        age = int(i['age'])
+        # calculates and stores authors birth year by subtracting their age from current year
+        birthYear = yearCurrent - relativedelta(years=age)
+        # calculates and stores when author was 10
+        authorTenYrsOld = birthYear + relativedelta(years=10)
 
-        # checks if pusblished year is before author was 10 and pushes to 'notWrittenByAuthor' list
-        if yearPublished < authorTenYrsOld:
-            notWrittenByAuthor.append(bookTitle)
-    
-    # pushes author's name as key and list of books as value to the 'resultObj' dict
-    resultObj[authorName] = notWrittenByAuthor
+        # pushes author's name as key to resultObj dict... empty list as value will be filled with books
+        resultObj[authorName] = []
 
-    print(resultObj)
+        # list that will hold the books not written by author
+        notWrittenByAuthor = []
+        
+        # loop through each book
+        for j in books:
+            # parses string from database and stores the year the book was published
+            yearPublished = datetime.strptime(j['published'], '%m-%d-%Y')
+            #stores title of book as a string
+            bookTitle = str(j['title'])
 
-    # pushes each dict containing author to 'listOfNotMyBooks' list
-    # listOfNotMyBooks.append(resultObj)
+            # checks if pusblished year is before author was 10 and pushes to 'notWrittenByAuthor' list
+            if yearPublished < authorTenYrsOld:
+                notWrittenByAuthor.append(bookTitle)
+        
+        # pushes author's name as key and list of books as value to the 'resultObj' dict
+        resultObj[authorName] = notWrittenByAuthor
 
-# print(listOfNotMyBooks)
+        # print(resultObj)
 
+        # pushes each dict containing author to 'listOfNotMyBooks' list
+        listOfNotMyBooks.append(resultObj)
+
+    # print(listOfNotMyBooks)
+
+    return jsonify(listOfNotMyBooks)
